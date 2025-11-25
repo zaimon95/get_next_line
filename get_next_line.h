@@ -23,10 +23,6 @@
 # endif
 
 char	*get_next_line(int fd);
-char	*read_and_join(int fd, char *stash);
-char	*get_rest(char *stash);
-char	*extract_line(char *stash);
-int		find_newline(char *stash);
 char	*ft_strjoin(char const *s1, char const *s2);
 char	*ft_strdup(const char *s);
 char	*ft_strchr(const char *s, int c);
