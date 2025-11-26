@@ -11,15 +11,22 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdlib.h>
+
+static char	*join_and_free(char *stash, char *buf)
+{
+	char	*tmp;
+
+	if (stash)
+		tmp = ft_strjoin(stash, buf);
+	else
+		tmp = ft_strdup(buf);
+	free(stash);
+	return (tmp);
+}
 
 static char	*update_stash(int fd, char *stash)
 {
 	char	*buf;
-	char	*tmp;
 	ssize_t	r;
 
 	buf = malloc(BUFFER_SIZE + 1);
@@ -29,17 +36,14 @@ static char	*update_stash(int fd, char *stash)
 	while (r > 0 && (!stash || !ft_strchr(stash, '\n')))
 	{
 		r = read(fd, buf, BUFFER_SIZE);
-		if (r <= 0)
+		if (r == 0)
 			break ;
+		if (r == -1)
+			return (free(buf), free(stash), NULL);
 		buf[r] = '\0';
-		if (stash)
-			tmp = ft_strjoin(stash, buf);
-		else
-			tmp = ft_strdup(buf);
-		free(stash);
-		if (!tmp)
+		stash = join_and_free(stash, buf);
+		if (!stash)
 			return (free(buf), NULL);
-		stash = tmp;
 	}
 	free(buf);
 	return (stash);
@@ -106,27 +110,36 @@ char	*get_next_line(int fd)
 {
 	static char	*stash;
 	char		*line;
+	char		*tmp;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	stash = update_stash(fd, stash);
 	if (!stash || !*stash)
-		return (free(stash), stash = NULL, NULL);
+	{
+		if (stash)
+			free(stash);
+		stash = NULL;
+		return (NULL);
+	}
 	line = extract_line(stash);
-	stash = get_rest(stash);
+	tmp = get_rest(stash);
+	stash = tmp;
 	return (line);
 }
 
-/*int	main(void)
+/*int main(void)
 {
 	int		fd;
 	char	*line;
 
-	fd = open("hp.txt", O_RDONLY);
+	fd = open("test.txt", O_RDONLY);
 	if (fd < 0)
+	{
+		perror("open");
 		return (1);
-	line = get_next_line(fd);
-	while (line != NULL)
+	}
+	while ((line = get_next_line(fd)) != NULL)
 	{
 		printf("%s", line);
 		free(line);
