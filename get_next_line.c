@@ -39,7 +39,11 @@ static char	*update_stash(int fd, char *stash)
 		if (r == 0)
 			break ;
 		if (r == -1)
-			return (free(buf), free(stash), NULL);
+		{
+			free(buf);
+			free(stash);
+			return (NULL);
+		}
 		buf[r] = '\0';
 		stash = join_and_free(stash, buf);
 		if (!stash)
@@ -54,7 +58,7 @@ static char	*extract_line(char *stash)
 	size_t	len;
 	size_t	i;
 	int		has_nl;
-	char	*out;
+	char	*line;
 
 	if (!stash || !stash[0])
 		return (NULL);
@@ -62,19 +66,19 @@ static char	*extract_line(char *stash)
 	while (stash[len] && stash[len] != '\n')
 		len++;
 	has_nl = (stash[len] == '\n');
-	out = malloc(len + 1 + has_nl);
-	if (!out)
+	line = malloc(len + 1 + has_nl);
+	if (!line)
 		return (NULL);
 	i = 0;
 	while (i < len)
 	{
-		out[i] = stash[i];
+		line[i] = stash[i];
 		i++;
 	}
 	if (has_nl)
-		out[i++] = '\n';
-	out[i] = '\0';
-	return (out);
+		line[i++] = '\n';
+	line[i] = '\0';
+	return (line);
 }
 
 static char	*get_rest(char *stash)
@@ -133,7 +137,7 @@ char	*get_next_line(int fd)
 	int		fd;
 	char	*line;
 
-	fd = open("test.txt", O_RDONLY);
+	fd = open("/home/sla-gran/Documents/textsGNL/hp.txt", O_RDONLY);
 	if (fd < 0)
 	{
 		perror("open");
