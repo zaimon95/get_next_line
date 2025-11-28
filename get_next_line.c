@@ -137,7 +137,7 @@ int main(void)
 	int		fd;
 	char	*line;
 
-	fd = open("/home/sla-gran/Documents/textsGNL/hp.txt", O_RDONLY);
+	fd = open("hp.txt", O_RDONLY);
 	if (fd < 0)
 	{
 		perror("open");
