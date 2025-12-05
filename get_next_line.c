@@ -151,4 +151,3 @@ int main(void)
 	close(fd);
 	return (EXIT_SUCCESS);
 }
-
